@@ -12,17 +12,47 @@ public class Example {
     private static final String FILE_NAME = "result";
 
     public static void main(String[] args) {
-        List<String> errors = onlyDictionaryErrors();
-        System.out.println("Dictionary words removed.");
-        errors = typingErrors(errors);
-        System.out.println("Typos removed.");
-        errors = regexErrors(errors);
-        System.out.println("Names removed.");
+        File sourceFile = new File("result-regex.txt");
+        ContentReader reader = null;
+        String content = null;
+        try {
+            reader = new ContentReader(sourceFile);
+            content = reader.getFileContent();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<String> errors = SentenceSplitter.split(content);
 
+        errors = dictionaryErrors(errors);
+        System.out.println("Dictionary words removed.");
+        errors = regexErrors(errors);
+        System.out.println("Regex matches removed.");
+
+        List<String> complexWords = findComplexWords(errors);
+        System.out.println("Complex words detected.");
+        //errors = typingErrors(errors);
+        //System.out.println("Typos removed.");
 
     }
 
-    private static List<String> typingErrors(List<String> words) {
+    private static List<String> findComplexWords(List<String> words) {
+        List<String> resultList = new ArrayList<>();
+
+        for (String w: words) {
+            if (PolishErrorDetector.isComplex(w))
+                resultList.add(w);
+        }
+
+        try {
+            saveResult(resultList, FILE_NAME + "-complex.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return resultList;
+    }
+
+    /*private static List<String> typingErrors(List<String> words) {
         List<String> resultList = new ArrayList<>();
         for (String w : words) {
             if (PolishErrorDetector.getWordSuggestions(w).size() == 0)
@@ -36,17 +66,17 @@ public class Example {
         }
 
         return resultList;
-    }
+    }*/
 
     private static List<String> regexErrors(List<String> words) {
         List<String> resultList = new ArrayList<>();
         for (String w: words) {
-            if (!PolishErrorDetector.isName(w))
+            if (!PolishErrorDetector.isRegexMatch(w))
                 resultList.add(w);
         }
 
         try {
-            saveResult(resultList, FILE_NAME + "-no-names.txt");
+            saveResult(resultList, FILE_NAME + "-regex.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,14 +84,10 @@ public class Example {
         return resultList;
     }
 
-    private static List<String> onlyDictionaryErrors() {
+    private static List<String> dictionaryErrors(List<String> words) {
         List<String> resultList = new ArrayList<>();
         try {
-            File sourceFile = new File("content.txt");
-            System.out.println(sourceFile.getAbsolutePath());
-            ContentReader reader = new ContentReader(sourceFile);
-            String content = reader.getFileContent();
-            List<String> words = SentenceSplitter.split(content);
+
             Set<String> errorSet = new HashSet<>();
             for(String w: words) {
                 if (!PolishErrorDetector.isWordInDictionary(w)) {
