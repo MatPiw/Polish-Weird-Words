@@ -12,7 +12,7 @@ public class Example {
     private static final String FILE_NAME = "result";
 
     public static void main(String[] args) {
-        File sourceFile = new File("result-regex.txt");
+        File sourceFile = new File("content.txt");
         ContentReader reader = null;
         String content = null;
         try {
@@ -28,9 +28,10 @@ public class Example {
         errors = regexErrors(errors);
         System.out.println("Regex matches removed.");
 
-        List<String> complexWords = findComplexWords(errors);
+        List<String> correctWords = findComplexWords(errors);
         System.out.println("Complex words detected.");
-        //errors = typingErrors(errors);
+        errors.removeAll(correctWords);
+        //correctWords = typingErrors(correctWords);
         //System.out.println("Typos removed.");
 
     }
@@ -52,7 +53,7 @@ public class Example {
         return resultList;
     }
 
-    /*private static List<String> typingErrors(List<String> words) {
+    private static List<String> typingErrors(List<String> words) {
         List<String> resultList = new ArrayList<>();
         for (String w : words) {
             if (PolishErrorDetector.getWordSuggestions(w).size() == 0)
@@ -66,7 +67,7 @@ public class Example {
         }
 
         return resultList;
-    }*/
+    }
 
     private static List<String> regexErrors(List<String> words) {
         List<String> resultList = new ArrayList<>();

@@ -18,6 +18,7 @@ public class PolishErrorDetector {
     private static List<String> regularExpressions;
 
     private static List<String> prefixes;
+    private static List<String> suffixes;
 
 
     static {
@@ -36,6 +37,14 @@ public class PolishErrorDetector {
             content = reader.getFileContent();
             prefixes = SentenceSplitter.split(content, "\\n");
             System.out.println("Found " + prefixes.size() + " prefixes in file.");
+            reader.close();
+
+            reader = new ContentReader("suffixes.txt");
+            content = reader.getFileContent();
+            suffixes = SentenceSplitter.split(content, "\\n");
+            System.out.println("Found " + suffixes.size() + " suffixes in file.");
+            reader.close();
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,8 +68,10 @@ public class PolishErrorDetector {
 
     public static boolean isRegexMatch(String word) {
         for (String regex : regularExpressions)
-            if (Pattern.matches(regex, word))
+            if (Pattern.matches(regex, word)) {
+                //System.out.println("regex matched: " + regex);
                 return true;
+            }
         return false;
     }
 
@@ -69,7 +80,24 @@ public class PolishErrorDetector {
         for (String prefix : prefixes) {
             if (word.startsWith(prefix)) {
                 String subword = word.substring(prefix.length(), word.length());
-                if (isWordInDictionary(subword) && subword.length() > 4)
+                if (isWordInDictionary(subword) && subword.length() >=2)
+                    //when word has only prefix
+                    return true;
+                else
+                    //when word has a prefix and a suffix
+                    if (hasSuffix(subword))
+                        return true;
+            }
+        }
+        //when word has only suffix
+        return hasSuffix(word);
+    }
+
+    private static boolean hasSuffix(String word) {
+        for (String suffix: suffixes) {
+            if (word.endsWith(suffix)) {
+                String subword = word.substring(0, word.indexOf(suffix));
+                if (isWordInDictionary(subword) && subword.length() >= 2)
                     return true;
             }
         }

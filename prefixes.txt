@@ -44,6 +44,7 @@ andro
 anemo
 angio
 anglo
+aniono
 ante
 anto
 antropo
@@ -583,6 +584,7 @@ od
 odonto
 ofio
 oftalmo
+ogólno
 ognio
 oko³o
 oksy
@@ -686,6 +688,7 @@ porno
 post
 potaso
 po³udniowo
+poza
 pra
 prawdo
 prawo
